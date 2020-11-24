@@ -2,7 +2,7 @@
 
 The repo for my recent talk at [Syndney ALT .NET virtual meetup](https://www.meetup.com/en-AU/Sydney-Alt-Net/events/zhdbvrybcpbgc/).
 
-Slides: ["Cancellation in JavaScript.pptx"](Cancellation%20in%20%20avaScript.pptx) 
+Slides: [.pdf](Cancellation%20in%20%20JavaScript.pdf), [.pptx](Cancellation%20in%20%20JavaScript.pptx) 
 
 To build and run the demos:
 
@@ -21,7 +21,7 @@ npm run build
 npm start
 ```
 - demo3
-```
+```git
 git checkout demo3
 npm run build
 npm start
