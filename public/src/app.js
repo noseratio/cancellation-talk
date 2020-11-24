@@ -60,9 +60,9 @@ export default class App {
   //#endregion
   
   static async* streamMouseMoveEvents(token) {
-    for await (const {clientX, clientY} of au.allEvents(document.body, "mousemove", token)) {
+    for await (const event of au.allEvents(document.body, "mousemove", token)) {
       token.throwIfCancellationRequested();
-      yield { x: clientX, y: clientY };
+      yield { x: event.clientX, y: event.clientY };
     }
   } 
   
