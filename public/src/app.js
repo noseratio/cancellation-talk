@@ -94,13 +94,13 @@ export default class App {
     }
   }
   
-  async run(token) {
+  async run() {
     // the app's main logic as a pseudo-linear async workflow,
     // where we handle UI as stream of events, inspired by BLOC pattern
 
     // wait for the document to be ready
     if (document.readyState !== "complete") {
-      await au.once(document, "DOMContentLoaded", token);
+      await au.once(document, "DOMContentLoaded");
     }
 
     const startStopButton = document.querySelector("button#startButton");
@@ -113,13 +113,13 @@ export default class App {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       // wait for stop/start commands
-      await au.once(startStopButton, "click", token);
+      await au.once(startStopButton, "click");
 
       // start or stop mouse tracking
       if (!isTrackingActive) {
         // start
         isTrackingActive = true;
-        trackingCts = au.createCancellationTokenSource([token]);
+        trackingCts = au.createCancellationTokenSource();
         App.updateStartStopButton(startStopButton, "stop");
         this.trackMouseAsync(trackingCts.token).catch(console.warn);
       }

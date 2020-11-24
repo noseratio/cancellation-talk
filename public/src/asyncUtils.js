@@ -179,23 +179,7 @@ export async function* allEvents(eventTarget, eventName, token) {
 /**
  * Wait for an event
  */
-/**
- * Wait for an event
- */
-export async function once(eventTarger, eventName, token) {
-  const d = createDeferred();
-  const rego = token?.register(d.cancel);
-  try {
-    eventTarger.addEventListener(eventName, d.resolve, { once: true });
-    try {
-      await d.promise;
-    }
-    finally {
-      eventTarger.removeEventListener(eventName, d.resolve);
-    }      
-  } 
-  finally {
-    rego?.unregister();
-  }
+export function once(eventTarger, eventName) {
+  return new Promise(resolve => 
+    eventTarger.addEventListener(eventName, resolve, { once: true }))
 } 
-
