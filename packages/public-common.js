@@ -1,0 +1,1 @@
+﻿globalThis.prex = require('prex');
