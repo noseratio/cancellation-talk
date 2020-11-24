@@ -23,6 +23,18 @@ export function createDeferred() {
 }
 
 /**
+ * Creates a CancellationTokenSource
+ */
+export function createCancellationTokenSource(linkedTokens) {
+  const cts = new CancellationTokenSource(linkedTokens);
+  return Object.freeze({
+    token: cts.token,
+    cancel: () => cts.cancel(),
+    close: () => cts.close
+  });
+}
+
+/**
  * Wraps a callback as async func with error handling
  * @param {Number} timeoutMs - a timeout 
  * @param {Object} token - a cancellation token 
@@ -167,8 +179,23 @@ export async function* allEvents(eventTarget, eventName, token) {
 /**
  * Wait for an event
  */
-export function once(eventTarget, eventName) {
-  return new Promise(resolve => 
-    eventTarget.addEventListener(eventName, resolve, { once: true }));
+/**
+ * Wait for an event
+ */
+export async function once(eventTarger, eventName, token) {
+  const d = createDeferred();
+  const rego = token?.register(d.cancel);
+  try {
+    eventTarger.addEventListener(eventName, d.resolve, { once: true });
+    try {
+      await d.promise;
+    }
+    finally {
+      eventTarger.removeEventListener(eventName, d.resolve);
+    }      
+  } 
+  finally {
+    rego?.unregister();
+  }
 } 
 
