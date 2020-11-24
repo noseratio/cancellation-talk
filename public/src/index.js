@@ -9,7 +9,7 @@ window.addEventListener("unhandledrejection", event => {
 // Run App.run with cancellation
 async function main() {
   const cts = au.createCancellationTokenSource();
-  setTimeout(() => cts.cancel(), 10_000);
+  setTimeout(() => cts.cancel(), 20_000);
 
   try {
     await new App().run(cts.token);

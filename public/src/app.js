@@ -2,6 +2,7 @@ import * as au from './asyncUtils.js';
 
 export default class App {
   #mouseTrackingSemaphore = new au.Semaphore(1);
+  #cancelPreviousCoords = null;
 
   //#region Drawing
 
@@ -42,6 +43,55 @@ export default class App {
     }
   }
   
+  static async drawTextAsync(x, y, s, token) {
+    const initialDelayMs = 500;
+    const degreesPerRotation = 3;
+  
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.left = `${(x - s)}px`;
+    canvas.style.top = `${(y - s)}px`;
+    canvas.style.width = `${(s * 2)}px`;
+    canvas.style.height = `${(s * 2)}px`;
+    canvas.style.zIndex = -1;
+  
+    document.body.appendChild(canvas);
+    try {
+      const ctx = App.setupCanvas(canvas);
+  
+      const draw = (text, angle) => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+    
+        ctx.save();
+        ctx.translate(s, s);
+        ctx.rotate(2 * Math.PI * angle / 360);
+    
+        ctx.fillStyle = "blue";
+        ctx.font = "bold 15px Verdana";
+        ctx.textAlign="center"; 
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+      };
+    
+      const text = `${x} : ${y}`;
+      let angle = 0;
+  
+      draw(text, angle, s);
+      await au.delay(initialDelayMs, token);
+  
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        draw(text, angle, s);
+        angle = (angle + degreesPerRotation) % 360;
+        await au.expectAnimationFrame(token);
+      }
+    }
+    finally {
+      canvas.remove();
+    }
+  }
+
   static setupCanvas(canvas) {
     // https://www.html5rocks.com/en/tutorials/canvas/hidpi/
     const dpr = window.devicePixelRatio;
@@ -54,15 +104,32 @@ export default class App {
   }
   
   async drawMouseTrackAsync(x, y, r, token) {
-    await App.drawCircleAsync(x, y, r, token).catch(au.cancelProof)
+    this.#cancelPreviousCoords?.();
+
+    const coordsCts = au.createCancellationTokenSource([token]); 
+    const cancelCoords = this.#cancelPreviousCoords = coordsCts.cancel;
+  
+    try {
+      await Promise.all([
+        App.drawCircleAsync(x, y, r, token)
+          .catch(au.cancelProof) // swallow cancellation error
+          .finally(cancelCoords), // hide coords when finished
+
+        App.drawTextAsync(x, y, r*2, coordsCts.token)
+          .catch(au.cancelProof) // swallow cancellation error
+      ]);
+    }
+    finally {
+      coordsCts.close();
+    }
   }
   
   //#endregion
   
   static async* streamMouseMoveEvents(token) {
-    for await (const {clientX, clientY} of au.allEvents(document.body, "mousemove", token)) {
+    for await (const event of au.allEvents(document.body, "mousemove", token)) {
       token.throwIfCancellationRequested();
-      yield { x: clientX, y: clientY };
+      yield { x: event.clientX, y: event.clientY };
     }
   } 
   
