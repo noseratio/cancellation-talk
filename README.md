@@ -2,7 +2,7 @@
 
 The repo for my recent talk at [Syndney ALT .NET virtual meetup](https://www.meetup.com/en-AU/Sydney-Alt-Net/events/zhdbvrybcpbgc/).
 
-Slides: [.pdf](Cancellation%20in%20%20JavaScript.pdf), [.pptx](Cancellation%20in%20%20JavaScript.pptx) 
+Slides: [.pdf](https://github.com/noseratio/cancellation-talk/raw/main/Cancellation%20in%20JavaScript.pdf), [.pptx](https://github.com/noseratio/cancellation-talk/raw/main/Cancellation%20in%20JavaScript.pptx) 
 
 To build and run the demos:
 
